@@ -165,7 +165,56 @@ while (true) {
 
     const forma = readlineSync.question("Forma de pagamento (credito/debito/dinheiro/pix): ") as Pedido["formaPagamento"];
     const pedido = pedidos.criar(cliente, itens, forma);
-    console.log("✅ Pedido criado:", pedido);
+
+    // Trecho novo de código (Emite o comprovante de compra)
+        
+        // ========== EMISSÃO DE COMPROVANTE ==========
+        console.log("\n========== EMISSÃO DE COMPROVANTE DE COMPRA ==========\n");
+
+        const agora = new Date();
+        const dataPedido = agora.toLocaleDateString("pt-BR");
+        const horaPedido = agora.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+        console.log("Dados do Pedido");
+        console.log(`Pedido Nº: ${pedido.id.padStart(5, "0")}`);
+        console.log(`Data: ${dataPedido} - Hora: ${horaPedido}`);
+        console.log(`Cliente: ${pedido.cliente.nome}`);
+        console.log(`Telefone: ${pedido.cliente.telefone}`);
+        console.log(`Endereço: ${pedido.cliente.endereco}`);
+        console.log("_________________________________\n");
+
+        console.log("Itens Comprados:");
+        let subtotal = 0;
+        pedido.itens.forEach(i => {
+            const totalItem = i.produto.preco * i.quantidade;
+            subtotal += totalItem;
+            console.log(`${i.quantidade}x ${i.produto.nome} ............... R$ ${totalItem.toFixed(2)} (R$ ${i.produto.preco.toFixed(2)} cada)`);
+        });
+        console.log("_________________________________\n");
+
+        const taxaEntrega = 5.00;
+        const desconto = 0.00;
+        const totalFinal = subtotal + taxaEntrega - desconto;
+
+        console.log("Totais:");
+        console.log(`Subtotal: ..................... R$ ${subtotal.toFixed(2)}`);
+        console.log(`Taxa de Entrega: .............. R$ ${taxaEntrega.toFixed(2)}`);
+        console.log(`Desconto: ..................... R$ ${desconto.toFixed(2)}`);
+        console.log(`TOTAL A PAGAR: ................ R$ ${totalFinal.toFixed(2)}`);
+        console.log("_________________________________\n");
+
+        if (forma.toLowerCase() === "dinheiro") {
+            const valorPago = parseFloat(readlineSync.question("Valor pago em dinheiro: R$ "));
+            const troco = valorPago - totalFinal;
+            console.log(`Forma de Pagamento: Dinheiro`);
+            console.log(`Valor Pago: R$ ${valorPago.toFixed(2)}`);
+            console.log(`Troco: R$ ${troco.toFixed(2)}`);
+        } else {
+            console.log(`Forma de Pagamento: ${forma}`);
+        }
+        console.log("_________________________________\n");
+
+        console.log("✅ Pedido confirmado e registrado!");
 
   // ===== RELATÓRIOS =====
   } else if (opcao === "4") {
