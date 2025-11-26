@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clientes • Sistema de Pizzaria</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Sistema de Pizzaria</h1>
+  <p>Gestão completa de pedidos e clientes</p>
+  <nav>
+    <button>Clientes</button>
+    <a href="produtos.html"><button>Produtos</button></a>
+    <a href="carrinho.html"><button>Carrinho</button></a>
+    <a href="pedidos.html"><button>Pedidos</button></a>
+    <a href="relatorios.html"><button>Relatórios</button></a>
+  </nav>
+</header>
+
+<main>
+  <div class="section">
+    <h2>Gerenciar Clientes</h2>
+
+    <button class="btn-vermelho" onclick="abrirModalNovo()">+ Novo Cliente</button>
+
+    <input type="text" id="buscaCliente" placeholder="Buscar por nome, telefone ou ID...">
+    <button class="btn-buscar" onclick="buscarCliente()">🔍︎ Buscar</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nome</th>
+          <th>Telefone</th>
+          <th>Email</th>
+          <th>Endereço</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaClientes">
+        <!-- Clientes serão inseridos aqui -->
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- MODAL NOVO -->
+<div id="modalNovo" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Novo Cliente</h3>
+
+    <label>Nome:</label>
+    <input type="text" id="novoNome">
+
+    <label>Telefone:</label>
+    <input type="text" id="novoTelefone">
+
+    <label>Email:</label>
+    <input type="email" id="novoEmail">
+
+    <label>Endereço:</label>
+    <input type="text" id="novoEndereco">
+
+    <div class="modal-buttons">
+      <button class="btn-vermelho" onclick="fecharModalNovo()">Cancelar</button>
+      <button class="btn-confirmar" onclick="salvarNovo()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div id="modalEditar" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Editar Cliente</h3>
+
+    <label>Nome:</label>
+    <input type="text" id="editarNome">
+
+    <label>Telefone:</label>
+    <input type="text" id="editarTelefone">
+
+    <label>Email:</label>
+    <input type="email" id="editarEmail">
+
+    <label>Endereço:</label>
+    <input type="text" id="editarEndereco">
+
+    <div class="modal-buttons">
+      <button class="btn-vermelho" onclick="fecharModalEditar()">Cancelar</button>
+      <button class="btn-confirmar" onclick="salvarEdicao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EXCLUIR -->
+<div id="modalExcluir" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Excluir Cliente</h3>
+    <p>Tem certeza que deseja excluir este cliente?</p>
+
+    <strong id="excluirNome"></strong>
+
+    <div class="modal-buttons">
+      <button class="btn-vermelho" onclick="fecharModalExcluir()">Cancelar</button>
+      <button class="btn-confirmar" onclick="confirmarExclusao()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let clienteSelecionado = null;
+
+/* ============ CARREGAR CLIENTES ============ */
+async function carregarClientes() {
+  const res = await fetch("/api/clientes");
+  const clientes = await res.json();
+
+  const tabela = document.getElementById("tabelaClientes");
+  tabela.innerHTML = "";
+
+  clientes.forEach(c => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${c.id}</td>
+      <td>${c.nome}</td>
+      <td>${c.telefone}</td>
+      <td>${c.email ?? ""}</td>
+      <td>${c.endereco ?? ""}</td>
+      <td class="actions">
+        <button onclick="abrirModalEditar(
+            '${c.id}',
+            '${c.nome}',
+            '${c.telefone}',
+            '${c.email ?? ""}',
+            '${c.endereco ?? ""}'
+        )">✏️</button>
+
+        <button onclick="abrirModalExcluir('${c.id}', '${c.nome}')">🗑️</button>
+      </td>
+    `;
+    tabela.appendChild(tr);
+  });
+}
+
+/* ============ BUSCAR CLIENTE ============ */
+function buscarCliente() {
+  const filtro = document.getElementById("buscaCliente").value.toLowerCase();
+  const linhas = document.querySelectorAll("#tabelaClientes tr");
+
+  linhas.forEach(linha => {
+    const texto = linha.innerText.toLowerCase();
+    linha.style.display = texto.includes(filtro) ? "" : "none";
+  });
+}
+
+/* ============ NOVO CLIENTE ============ */
+function abrirModalNovo() {
+  document.getElementById("modalNovo").style.display = "flex";
+}
+function fecharModalNovo() {
+  document.getElementById("modalNovo").style.display = "none";
+}
+
+async function salvarNovo() {
+  const nome = document.getElementById("novoNome").value.trim();
+  const telefone = document.getElementById("novoTelefone").value.trim();
+  const email = document.getElementById("novoEmail").value.trim();
+  const endereco = document.getElementById("novoEndereco").value.trim();
+
+  const res = await fetch("/api/clientes", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nome, telefone, email, endereco })
+  });
+
+  if (res.ok) {
+    fecharModalNovo();
+    carregarClientes();
+  } else {
+    alert("Erro ao cadastrar cliente");
+  }
+}
+
+/* ============ EDITAR CLIENTE ============ */
+function abrirModalEditar(id, nome, telefone, email, endereco) {
+  clienteSelecionado = id;
+
+  document.getElementById("editarNome").value = nome;
+  document.getElementById("editarTelefone").value = telefone;
+  document.getElementById("editarEmail").value = email;
+  document.getElementById("editarEndereco").value = endereco;
+
+  document.getElementById("modalEditar").style.display = "flex";
+}
+function fecharModalEditar() {
+  document.getElementById("modalEditar").style.display = "none";
+}
+
+async function salvarEdicao() {
+  const nome = document.getElementById("editarNome").value;
+  const telefone = document.getElementById("editarTelefone").value;
+  const email = document.getElementById("editarEmail").value;
+  const endereco = document.getElementById("editarEndereco").value;
+
+  const res = await fetch(`/api/clientes/${clienteSelecionado}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nome, telefone, email, endereco })
+  });
+
+  if (res.ok) {
+    fecharModalEditar();
+    carregarClientes();
+  } else {
+    alert("Erro ao atualizar cliente");
+  }
+}
+
+/* ============ EXCLUIR CLIENTE ============ */
+function abrirModalExcluir(id, nome) {
+  clienteSelecionado = id;
+  document.getElementById("excluirNome").innerText = nome;
+  document.getElementById("modalExcluir").style.display = "flex";
+}
+function fecharModalExcluir() {
+  document.getElementById("modalExcluir").style.display = "none";
+}
+
+async function confirmarExclusao() {
+  const res = await fetch(`/api/clientes/${clienteSelecionado}`, {
+    method: "DELETE"
+  });
+
+  if (res.ok) {
+    fecharModalExcluir();
+    carregarClientes();
+  } else {
+    alert("Erro ao excluir cliente");
+  }
+}
+
+/* INICIALIZA AO CARREGAR */
+window.onload = carregarClientes;
+</script>
+
+</body>
+</html>

@@ -1,0 +1,77 @@
+
+===== COMPROVANTE DE PEDIDO =====
+ID do Pedido: O-mfzgl2qso9
+Cliente: Nathalia
+Endereço entrega: Rua Pirapora, 321
+Data: 25/09/2025, 10:38:38
+
+Itens:
+1) Calabresa (Inteira) - x1 - R$ 45.00
+2) Água sem gás 500ml - x2 - R$ 8.00
+
+Total: R$ 53.00
+Forma de pagamento: Dinheiro
+Troco para: R$ 60.00
+
+================================
+Obrigado pela compra! 
+
+===== COMPROVANTE DE PEDIDO =====
+ID do Pedido: O-mfzgqnrfjs
+Cliente: Breno
+Endereço entrega: Rua Avião; 123
+Data: 25/09/2025, 10:42:59
+
+Itens:
+1) Portuguesa (Inteira) - x2 - R$ 90.00
+
+Total: R$ 90.00
+Forma de pagamento: Cartão
+
+================================
+Obrigado pela compra! 
+
+===== COMPROVANTE DE PEDIDO =====
+ID do Pedido: O-miamxf0hc2
+Cliente: Breno Miguel
+Endereço entrega: Rua A, 123
+Data: 22/11/2025, 15:41:04
+
+Itens:
+1) Calabresa (Inteira) - x1 - R$ 45.00 (meia)
+
+Total: R$ 45.00
+Forma de pagamento: Pix
+
+================================
+Obrigado pela compra! 
+
+===== COMPROVANTE DE PEDIDO =====
+ID do Pedido: O-mianah2j5
+Cliente: Breno Miguel
+Endereço entrega: Rua A, 123
+Data: 22/11/2025, 15:51:13
+
+Itens:
+1) Nutella com morango (Inteira) - x1 - R$ 45.00 (meia)
+
+Total: R$ 45.00
+Forma de pagamento: Pix
+
+================================
+Obrigado pela compra! 
+
+===== COMPROVANTE DE PEDIDO =====
+ID do Pedido: O-miao7dxb1m
+Cliente: Breno Miguel
+Endereço entrega: Rua A, 123
+Data: 22/11/2025, 16:16:49
+
+Itens:
+1) Portuguesa (Inteira) - x1 - R$ 45.00 (meia)
+
+Total: R$ 45.00
+Forma de pagamento: Cartão
+
+================================
+Obrigado pela compra! 

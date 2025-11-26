@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrinho • Sistema de Pizzaria</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Sistema de Pizzaria</h1>
+  <p>Gestão completa de pedidos e clientes</p>
+  <nav>
+    <a href="pizza.html"><button>Clientes</button></a>
+    <a href="produtos.html"><button>Produtos</button></a>
+    <a href="carrinho.html"><button>Carrinho</button></a>
+    <a href="pedidos.html"><button>Pedidos</button></a>
+    <a href="relatorios.html"><button>Relatórios</button></a>
+  </nav>
+</header>
+
+<main>
+
+  <div class="section">
+    <h2>Carrinho</h2>
+
+    <button class="btn-vermelho" onclick="abrirAdicionarProduto()">Adicionar Produto</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Qtd</th>
+          <th>Preço</th>
+          <th>Total</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="listaCarrinho">
+        <!-- Itens do carrinho surgem aqui -->
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:1rem;">
+      Total Geral: R$ <span id="totalGeral">0,00</span>
+    </h3>
+
+    <br>
+
+    <button class="btn-vermelho" onclick="abrirFinalizarPedido()">
+      Finalizar Pedido
+    </button>
+  </div>
+
+</main>
+
+<!-- MODAL REMOVER ITEM -->
+<div id="modalExcluir" class="modal" style="display:none;">
+  <div class="modalCarrinho-content">
+    <h3>Remover Item</h3>
+    <p>Tem certeza que deseja remover este item do carrinho?</p>
+
+    <strong id="itemNome"></strong>
+
+    <div class="modal-buttons">
+      <button class="btn-vermelho" onclick="fecharModalExcluir()">Cancelar</button>
+      <button class="btn-confirmar" onclick="confirmarExclusao()">Remover</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ADICIONAR PRODUTO -->
+<div id="modalAdicionar" class="modal" style="display:none;">
+  <div class="modalCarrinho-content">
+    <h3>Adicionar Produto</h3>
+    <table id="listaProdutos">
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Preço</th>
+          <th>Qtd</th>
+          <th>Observação</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Produtos surgem aqui -->
+      </tbody>
+    </table>
+    <div class="modal-buttons">
+      <button class="btn-vermelho" onclick="fecharModalAdicionar()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FINALIZAR PEDIDO -->
+<div id="modalFinalizarPedido" class="modal" style="display:none;">
+  <div class="modalCarrinho-content">
+    <h3>Finalizar Pedido</h3>
+
+    <div id="passoCliente">
+      <label>Associar a um cliente cadastrado?</label>
+      <div class="modal-buttons">
+        <div class="acoes-esquerda">
+          <button class="btn-confirmar" onclick="selecionarCliente(true)">Sim</button>
+          <button class="btn-confirmar" onclick="selecionarCliente(false)">Não</button>
+        </div>
+        <button class="btn-vermelho" onclick="fecharModalFinalizar()">Sair</button>
+      </div>
+    </div>
+
+    <div id="passoChaveCliente" style="display:none;">
+      <label>Digite ID ou nome do cliente:</label>
+      <input type="text" id="inputCliente" placeholder="ID ou Nome">
+      <div class="modal-buttons">
+        <div class="acoes-esquerda">
+          <button class="btn-confirmar" onclick="confirmarCliente()">Continuar</button>
+        </div>
+        <button class="btn-vermelho" onclick="fecharModalFinalizar()">Sair</button>
+      </div>
+    </div>
+
+    <div id="passoEndereco" style="display:none;">
+      <label>Endereço de entrega:</label>
+      <input type="text" id="inputEndereco" placeholder="Informe o endereço">
+      <div class="modal-buttons">
+        <div class="acoes-esquerda">
+          <button class="btn-confirmar" onclick="confirmarEndereco()">Continuar</button>
+        </div>
+        <button class="btn-vermelho" onclick="fecharModalFinalizar()">Sair</button>
+      </div>
+    </div>
+
+    <div id="passoPagamento" style="display:none;">
+      <label>Forma de pagamento:</label>
+      <select id="selectPagamento">
+        <option value="Pix">Pix</option>
+        <option value="Cartão">Cartão</option>
+        <option value="Dinheiro">Dinheiro</option>
+        <option value="Vale-alimentacao">Vale-alimentacao</option>
+      </select>
+      <div id="trocoDiv" style="display:none; margin-top:10px;">
+        <label>Valor entregue pelo cliente (para calcular troco):</label>
+        <input type="number" id="inputTroco" min="0" step="0.01">
+      </div>
+      <div class="modal-buttons">
+        <div class="acoes-esquerda">
+          <button class="btn-confirmar" onclick="confirmarPagamento()">Finalizar Pedido</button>
+        </div>
+        <button class="btn-vermelho" onclick="fecharModalFinalizar()">Sair</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let CARRINHO = [];
+let PRODUTOS = [];
+let itemSelecionado = null;
+
+/* FUNÇÕES DE API */
+async function fetchProdutos() {
+  try {
+    const res = await fetch('/api/produtos');
+    PRODUTOS = await res.json();
+  } catch (err) {
+    console.error("Erro ao buscar produtos:", err);
+    alert("Não foi possível carregar os produtos.");
+  }
+}
+
+async function consultarCliente(chave) {
+  try {
+    const res = await fetch('/api/clientes');
+    const clientes = await res.json();
+    return clientes.find(c => c.id === chave || c.nome.toLowerCase() === chave.toLowerCase());
+  } catch (err) {
+    console.error("Erro ao consultar cliente:", err);
+    return null;
+  }
+}
+
+async function gravarPedido(pedido) {
+  try {
+    await fetch('/api/pedidos', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(pedido)
+    });
+    CARRINHO = [];
+    renderizarCarrinho();
+  } catch (err) {
+    console.error("Erro ao gravar pedido:", err);
+    alert("Não foi possível finalizar o pedido.");
+  }
+}
+
+/* CARRINHO */
+function renderizarCarrinho() {
+  const tbody = document.getElementById("listaCarrinho");
+  tbody.innerHTML = "";
+  let totalGeral = 0;
+
+  CARRINHO.forEach((item, index) => {
+    let totalItem = item.quantidade * item.precoUnit;
+    totalGeral += totalItem;
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${item.nome}</td>
+        <td>${item.quantidade}</td>
+        <td>R$ ${item.precoUnit.toFixed(2)}</td>
+        <td>R$ ${totalItem.toFixed(2)}</td>
+        <td class="actions">
+          <button onclick="abrirModalExcluir(${index}, '${item.nome}')">🗑️</button>
+        </td>
+      </tr>
+    `;
+  });
+
+  document.getElementById("totalGeral").innerText = totalGeral.toFixed(2);
+}
+
+/* MODAIS */
+function abrirModalExcluir(index, nome) {
+  itemSelecionado = index;
+  document.getElementById("itemNome").innerText = nome;
+  document.getElementById("modalExcluir").style.display = "flex";
+}
+function fecharModalExcluir() { document.getElementById("modalExcluir").style.display = "none"; }
+function confirmarExclusao() { CARRINHO.splice(itemSelecionado,1); fecharModalExcluir(); renderizarCarrinho(); }
+
+async function abrirAdicionarProduto() {
+  // Se PRODUTOS ainda não foi carregado, buscar do servidor
+  if (!PRODUTOS || PRODUTOS.length === 0) {
+    await fetchProdutos();
+  }
+
+  const tbody = document.querySelector("#listaProdutos tbody");
+  tbody.innerHTML = "";
+  PRODUTOS.forEach((p, i) => {
+  const precoNum = Number(p.preco); // transforma string em número
+
+  tbody.innerHTML += `
+    <tr>
+      <td>${p.nome}</td>
+      <td>R$ ${precoNum.toFixed(2)}</td>
+      <td><input type="number" value="1" min="1" id="qtd-${i}" style="width:50px;"></td>
+      <td>${p.categoria==='Pizza'?`<input type="text" placeholder="Ex: meia calabresa" id="obs-${i}">`:'-'}</td>
+      <td><button class="btn-confirmar" onclick="adicionarProduto(${i})">Adicionar</button></td>
+    </tr>
+  `;
+
+  // Atualiza o array PRODUTOS para não dar problema ao adicionar ao carrinho
+  PRODUTOS[i].preco = precoNum;
+});
+
+  document.getElementById("modalAdicionar").style.display = "flex";
+}
+
+function fecharModalAdicionar() { document.getElementById("modalAdicionar").style.display = "none"; }
+
+function adicionarProduto(index) {
+  const p = PRODUTOS[index];
+  const qtd = parseInt(document.getElementById(`qtd-${index}`).value) || 1;
+  const obs = p.categoria==='Pizza'?document.getElementById(`obs-${index}`).value:undefined;
+  const existente = CARRINHO.find(ci => ci.produtoId===p.id && (ci.observacao??'') === (obs??''));
+  if (existente) existente.quantidade += qtd;
+  else CARRINHO.push({produtoId:p.id,nome:p.nome,quantidade:qtd,precoUnit:p.preco,observacao:obs});
+  renderizarCarrinho();
+  alert(`${p.nome} adicionado ao carrinho!`);
+}
+
+/* FINALIZAR PEDIDO */
+let pedidoTemp={}, clienteTemp=null;
+
+function abrirFinalizarPedido() {
+  if(CARRINHO.length===0){ alert('Carrinho vazio.'); return; }
+  pedidoTemp={}; clienteTemp=null;
+  document.getElementById("modalFinalizarPedido").style.display="flex";
+  document.getElementById("passoCliente").style.display="block";
+  document.getElementById("passoChaveCliente").style.display="none";
+  document.getElementById("passoEndereco").style.display="none";
+  document.getElementById("passoPagamento").style.display="none";
+}
+
+function selecionarCliente(temCliente){
+  if(temCliente){ 
+    document.getElementById("passoCliente").style.display="none"; 
+    document.getElementById("passoChaveCliente").style.display="block"; 
+  } else { 
+    document.getElementById("passoCliente").style.display="none"; 
+    document.getElementById("passoEndereco").style.display="block"; 
+  }
+}
+
+async function confirmarCliente(){
+  const chave=document.getElementById("inputCliente").value.trim();
+  const c=await consultarCliente(chave);
+  if(!c){ alert('Cliente não encontrado!'); return; }
+  clienteTemp=c;
+  document.getElementById("passoChaveCliente").style.display="none";
+  const usarOutroEndereco=confirm('Deseja usar outro endereço?');
+  if(usarOutroEndereco) document.getElementById("passoEndereco").style.display="block";
+  else { pedidoTemp.enderecoEntrega=c.endereco; abrirPagamento(); }
+}
+
+function confirmarEndereco(){
+  const end=document.getElementById("inputEndereco").value.trim();
+  if(!end){ alert('Informe o endereço!'); return; }
+  pedidoTemp.enderecoEntrega=end;
+  document.getElementById("passoEndereco").style.display="none";
+  abrirPagamento();
+}
+
+function abrirPagamento(){
+  document.getElementById("passoPagamento").style.display="block";
+  const select=document.getElementById("selectPagamento");
+  const trocoDiv=document.getElementById("trocoDiv");
+  select.addEventListener("change",()=>{ trocoDiv.style.display = select.value==="Dinheiro"?"block":"none"; });
+}
+
+async function confirmarPagamento(){
+  const forma=document.getElementById("selectPagamento").value;
+  pedidoTemp.formaPagamento=forma;
+  if(forma==="Dinheiro") pedidoTemp.trocoPara=parseFloat(document.getElementById("inputTroco").value)||0;
+
+  const pedidoParcial = {
+    id: 'PED-' + Date.now().toString(36),
+    clienteId: clienteTemp?.id ?? null,
+    clienteNome: clienteTemp?.nome ?? null,
+    total: CARRINHO.reduce((acc,i)=>acc+i.quantidade*i.precoUnit,0),
+    formaPagamento: pedidoTemp.formaPagamento,
+    trocoPara: pedidoTemp.trocoPara ?? null,
+    enderecoEntrega: pedidoTemp.enderecoEntrega,
+    dataISO: new Date().toISOString(),
+    itens: CARRINHO
+  };
+
+  await gravarPedido(pedidoParcial);
+  document.getElementById("modalFinalizarPedido").style.display="none";
+  alert(`Pedido ${pedidoParcial.id} finalizado com sucesso!`);
+}
+
+function fecharModalFinalizar() {
+  document.getElementById("modalFinalizarPedido").style.display = "none";
+}
+
+/* INICIALIZAÇÃO */
+(async function init() {
+  await fetchProdutos();
+  renderizarCarrinho();
+})();
+</script>
+
+</body>
+</html>

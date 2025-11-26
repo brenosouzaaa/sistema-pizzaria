@@ -1,0 +1,166 @@
+# 🍕 Sistema de Pizzaria
+
+Este projeto é um sistema completo para gerenciamento de pedidos de pizzaria, utilizando **Node.js**, **Express**, **PostgreSQL** e **Docker**, além de um front-end simples em HTML/CSS/JS.
+
+---
+
+## 🛠 Tecnologias utilizadas
+
+* **Node.js** (com TypeScript)
+* **Express** (API REST)
+* **PostgreSQL**
+* **Docker & Docker Compose**
+* **HTML, CSS e JavaScript**
+
+---
+
+## 🔹 Pré-requisitos
+
+Instale antes de rodar o projeto:
+
+* Node.js (v18+)
+* Docker
+* Docker Compose
+* Git (opcional)
+
+---
+
+## 🔹 Como rodar o projeto
+
+### **1. Entrar na pasta do projeto**
+
+```bash
+cd sistema-pizzaria-main
+```
+
+### **2. Criar o arquivo `.env`**
+
+Crie um arquivo na raiz com:
+
+```
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=pizzaria
+POSTGRES_PORT=5432
+
+PORT=3000
+```
+
+O conteúdo deve corresponder ao `docker-compose.yml`.
+
+---
+
+### **3. Subir o banco de dados (Docker)**
+
+```bash
+docker-compose up -d
+```
+
+Verificar se está rodando:
+
+```bash
+docker ps
+```
+
+Parar:
+
+```bash
+docker-compose down
+```
+
+---
+
+### **4. Instalar dependências**
+
+```bash
+npm install
+```
+
+---
+
+### **5. Rodar o servidor (back-end)**
+
+Como o projeto usa TypeScript, execute:
+
+```bash
+npx ts-node server.ts
+```
+
+Ou, se usar um script no package.json:
+
+```bash
+npm start
+```
+
+Se tudo estiver certo, aparecerá:
+
+```
+Servidor rodando em http://localhost:3000
+```
+
+---
+
+### **6. Abrir o front-end**
+
+O servidor já entrega os arquivos HTML automaticamente.
+
+Abra no navegador:
+
+```
+http://localhost:3000/pizza.html
+```
+
+Ou:
+
+* /produtos.html
+* /carrinho.html
+* /pedidos.html
+* /relatorios.html
+
+---
+
+## 🔹 Dicas úteis
+
+### Reiniciar banco do zero:
+
+```bash
+docker-compose down -v
+docker-compose up -d
+```
+
+### Acessar o banco via terminal:
+
+```bash
+docker exec -it <nome_do_container> psql -U postgres -d pizzaria
+```
+
+### Build do TypeScript:
+
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 📂 Estrutura do projeto (real)
+
+```
+sistema-pizzaria-main/
+├─ frontend/
+│  ├─ pizza.html
+│  ├─ produtos.html
+│  ├─ carrinho.html
+│  ├─ pedidos.html
+│  ├─ relatorios.html
+│  └─ styles.css
+├─ ts/
+│  └─ db.ts
+├─ server.ts
+├─ docker-compose.yml
+├─ dockerfile
+├─ init_db.sql
+├─ package.json
+├─ tsconfig.json
+└─ .env
+```

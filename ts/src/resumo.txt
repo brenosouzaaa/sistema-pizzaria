@@ -1,0 +1,15 @@
+Resumo de Vendas - 22/11/2025, 16:16:19
+Total pedidos: 2
+Total vendas: R$ 90.00
+
+Top produtos:
+Calabresa (Inteira): 1
+Nutella com morango (Inteira): 1
+
+Vendas por cliente:
+Breno Miguel: 2 pedidos - R$ 90.00
+
+Pizza por dia:
+22/11/2025: 2 pizzas
+
+Pizzas no mês: 2

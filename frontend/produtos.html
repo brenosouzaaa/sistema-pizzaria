@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Produtos • Sistema de Pizzaria</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Sistema de Pizzaria</h1>
+  <p>Gestão completa de pedidos e clientes</p>
+  <nav>
+    <a href="pizza.html"><button>Clientes</button></a>
+    <a href="produtos.html"><button>Produtos</button></a>
+    <a href="carrinho.html"><button>Carrinho</button></a>
+    <a href="pedidos.html"><button>Pedidos</button></a>
+    <a href="relatorios.html"><button>Relatórios</button></a>
+  </nav>
+</header>
+
+<main>
+  <div class="section">
+    <h2>Cardápio de Produtos</h2>
+
+    <button class="btn-vermelho" onclick="abrirModalNovo()">+ Novo Produto</button>
+
+    <input type="text" id="buscaProdutos" placeholder="Buscar por ID, nome ou categoria...">
+    <button class="btn-buscar" onclick="buscarProduto()">🔍︎ Buscar</button>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Categoria</th>
+          <th>Nome</th>
+          <th>Preço</th>
+          <th>Meta</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaProdutos">
+        <!-- Produtos serão preenchidos via API -->
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- MODAIS: NOVO, EDITAR, EXCLUIR PRODUTO  -->
+<div id="modalNovo" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Novo Produto</h3>
+    <label>Categoria:</label>
+    <input type="text" id="novoCategoria">
+    <label>Nome:</label>
+    <input type="text" id="novoNome">
+    <label>Preço:</label>
+    <input type="number" id="novoPreco">
+    <label>Meta (R$):</label>
+    <input type="number" id="novoMeta">
+    <div class="modal-buttons">
+      <button class="btn-vermelho" onclick="fecharModalNovo()">Cancelar</button>
+      <button class="btn-confirmar" onclick="salvarNovo()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalEditar" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Editar Produto</h3>
+    <label>Categoria:</label>
+    <input type="text" id="editarCategoria">
+    <label>Nome:</label>
+    <input type="text" id="editarNome">
+    <label>Preço:</label>
+    <input type="number" id="editarPreco">
+    <label>Meta (R$):</label>
+    <input type="number" id="editarMeta">
+    <div class="modal-buttons">
+      <button class="btn-vermelho" onclick="fecharModalEditar()">Cancelar</button>
+      <button class="btn-confirmar" onclick="salvarEdicao()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="modalExcluir" class="modal" style="display:none;">
+  <div class="modal-content">
+    <h3>Excluir Produto</h3>
+    <p>Tem certeza que deseja excluir este produto?</p>
+    <strong id="excluirNome"></strong>
+    <div class="modal-buttons">
+      <button class="btn-vermelho" onclick="fecharModalExcluir()">Cancelar</button>
+      <button class="btn-confirmar" onclick="confirmarExclusao()">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let produtoSelecionado = null;
+let carrinho = [];
+
+/* ABRIR / FECHAR MODAL DE NOVO */
+function abrirModalNovo() {
+  document.getElementById('modalNovo').style.display = 'flex';
+}
+function fecharModalNovo() {
+  document.getElementById('modalNovo').style.display = 'none';
+}
+async function salvarNovo() {
+  const categoria = document.getElementById('novoCategoria').value;
+  const nome = document.getElementById('novoNome').value;
+  const preco = Number(document.getElementById('novoPreco').value);
+  const meta = document.getElementById('novoMeta').value;
+
+  await fetch('/api/produtos', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ categoria, nome, preco, meta })
+  });
+
+  fecharModalNovo();
+  carregarProdutos();
+}
+
+/* MODAL EDITAR */
+function abrirModalEditar(id, cat, nome, preco, meta) {
+  produtoSelecionado = id;
+  document.getElementById('editarCategoria').value = cat;
+  document.getElementById('editarNome').value = nome;
+  document.getElementById('editarPreco').value = preco;
+  document.getElementById('editarMeta').value = meta;
+  document.getElementById('modalEditar').style.display = 'flex';
+}
+function fecharModalEditar() {
+  document.getElementById('modalEditar').style.display = 'none';
+}
+async function salvarEdicao() {
+  const categoria = document.getElementById('editarCategoria').value;
+  const nome = document.getElementById('editarNome').value;
+  const preco = Number(document.getElementById('editarPreco').value);
+  const meta = document.getElementById('editarMeta').value;
+
+  await fetch(`/api/produtos/${produtoSelecionado}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ categoria, nome, preco, meta })
+  });
+
+  fecharModalEditar();
+  carregarProdutos();
+}
+
+/* MODAL EXCLUIR */
+function abrirModalExcluir(id, nome) {
+  produtoSelecionado = id;
+  document.getElementById('excluirNome').innerText = nome;
+  document.getElementById('modalExcluir').style.display = 'flex';
+}
+function fecharModalExcluir() {
+  document.getElementById('modalExcluir').style.display = 'none';
+}
+async function confirmarExclusao() {
+  await fetch(`/api/produtos/${produtoSelecionado}`, {
+    method: 'DELETE'
+  });
+
+  fecharModalExcluir();
+  carregarProdutos();
+}
+
+/* BUSCA */
+function buscarProduto() {
+  let texto = document.getElementById("buscaProdutos").value.toLowerCase();
+  let linhas = document.querySelectorAll("#tabelaProdutos tr");
+  linhas.forEach(linha => {
+    let conteudo = linha.innerText.toLowerCase();
+    linha.style.display = conteudo.includes(texto) ? "" : "none";
+  });
+}
+
+/* ADICIONAR AO CARRINHO */
+function adicionarAoCarrinho(produto) {
+  carrinho.push({
+    produtoId: produto.id,
+    nome: produto.nome,
+    quantidade: 1,
+    precoUnit: Number(produto.preco)
+  });
+  alert(`${produto.nome} adicionado ao carrinho!`);
+}
+
+/* CARREGAR PRODUTOS VIA API */
+async function carregarProdutos() {
+  try {
+    const res = await fetch('/api/produtos');
+    const produtos = await res.json();
+
+    const tabela = document.getElementById('tabelaProdutos');
+    tabela.innerHTML = '';
+
+    produtos.forEach(p => {
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td>${p.id}</td>
+        <td>${p.categoria}</td>
+        <td>${p.nome}</td>
+        <td>R$ ${Number(p.preco).toFixed(2)}</td>
+        <td>R$ ${Number(p.meta).toFixed(2)}</td>
+        <td class="actions">
+          <button onclick="abrirModalEditar('${p.id}','${p.categoria}','${p.nome}','${p.preco}','${p.meta}')">✏️</button>
+          <button onclick="abrirModalExcluir('${p.id}','${p.nome}')">🗑️</button>
+        </td>
+      `;
+      tabela.appendChild(tr);
+    });
+  } catch (err) {
+    console.error('Erro ao carregar produtos:', err);
+  }
+}
+
+// chama ao carregar a página
+window.onload = carregarProdutos;
+</script>
+
+</body>
+</html>

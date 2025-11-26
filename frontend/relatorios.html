@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Relatórios • Pizzaria</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Sistema de Pizzaria</h1>
+  <p>Gestão completa de pedidos e clientes</p>
+  <nav>
+    <a href="pizza.html"><button>Clientes</button></a>
+    <a href="produtos.html"><button>Produtos</button></a>
+    <a href="carrinho.html"><button>Carrinho</button></a>
+    <a href="pedidos.html"><button>Pedidos</button></a>
+    <a href="relatorios.html"><button>Relatórios</button></a>
+  </nav>
+</header>
+
+<main>
+  <div class="section">
+    <h2>Relatórios</h2>
+
+    <!-- Filtro de vendas -->
+    <h3>Vendas por período</h3>
+    <p>Selecione o intervalo de datas para gerar o relatório:</p>
+    <br>
+    <input type="date" id="dataInicio" style="margin-right: 12px; width: 200px; height: 40px; padding: 5px;">
+    <input type="date" id="dataFim" style="margin-right: 12px; width: 200px; height: 40px; padding: 5px;">
+    <button class="btn-vermelho" onclick="gerarRelatorioVendasModal()">Gerar relatório</button>
+
+    <!-- Produtos mais vendidos -->
+    <h3 style="margin-top: 2rem;">Produtos mais vendidos</h3>
+    <p>Confira os itens que saíram mais rápido:</p>
+    <table>
+      <thead>
+        <tr>
+          <th>Produto</th>
+          <th>Quantidade Vendida</th>
+          <th>Total Vendido</th> 
+        </tr>
+      </thead>
+      <tbody id="tabelaProdutosMaisVendidos">
+      </tbody>
+    </table>
+
+
+    <!-- Clientes que mais compraram -->
+    <h3 style="margin-top: 2rem;">Clientes que mais compraram</h3>
+    <p>Clientes com maior número de pedidos:</p>
+    <table id="tabelaClientesMaisCompraram">
+      <thead>
+        <tr>
+          <th>Cliente</th>
+          <th>Quantidade de Pedidos</th>
+          <th>Total Gasto</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+
+  </div>
+</main>
+
+<!-- Modal Vendas -->
+<div id="modalVendas" class="modal">
+  <div class="modal-content">
+    <h3>Vendas de <span id="periodoModal"></span></h3>
+    <table>
+      <thead>
+        <tr>
+          <th>ID Pedido</th>
+          <th>Cliente</th>
+          <th>Total</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody id="tabelaVendas">
+        <!-- Pedidos -->
+      </tbody>
+    </table>
+    <div class="modal-buttons">
+      <button class="btn-vermelho" onclick="fecharModalVendas()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+/*RELATÓRIO POR PERÍODO*/
+async function gerarRelatorioVendasModal() {
+  const inicio = document.getElementById("dataInicio").value;
+  const fim = document.getElementById("dataFim").value;
+
+  if (!inicio || !fim) {
+    alert("Informe duas datas.");
+    return;
+  }
+
+  try {
+    const res = await fetch(`/api/relatorios/vendas?inicio=${inicio}&fim=${fim}`);
+    const pedidos = await res.json();
+
+    const tbody = document.getElementById("tabelaVendas");
+    tbody.innerHTML = "";
+
+    pedidos.forEach(p => {
+      const totalNum = Number(p.total);
+      tbody.innerHTML += `
+        <tr>
+          <td>${p.id}</td>
+          <td>${p.cliente_nome ?? "Sem cliente"}</td>
+          <td>R$ ${totalNum.toFixed(2)}</td>
+          <td>${new Date(p.data_iso).toLocaleString()}</td>
+        </tr>
+      `;
+    });
+
+    document.getElementById("periodoModal").innerText = `${inicio} a ${fim}`;
+    document.getElementById("modalVendas").style.display = "flex";
+  } catch (err) {
+    console.error(err);
+    alert("Erro ao gerar relatório.");
+  }
+}
+
+function fecharModalVendas() {
+  document.getElementById("modalVendas").style.display = "none";
+}
+
+/*PRODUTOS MAIS VENDIDOS*/
+async function carregarProdutosMaisVendidos() {
+  try {
+    const res = await fetch('/api/relatorios/produtos');
+    const produtos = await res.json();
+
+    const tbody = document.querySelector('#tabelaProdutosMaisVendidos');
+    tbody.innerHTML = "";
+
+    produtos.forEach(p => {
+      const totalNum = Number(p.total_vendido);
+
+      tbody.innerHTML += `
+        <tr>
+          <td>${p.nome}</td>
+          <td>${p.qtd_vendida}</td>
+          <td>R$ ${totalNum.toFixed(2)}</td>
+        </tr>
+      `;
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/*CLIENTES QUE MAIS COMPRARAM*/
+async function carregarClientesMaisCompraram() {
+  try {
+    const res = await fetch('/api/relatorios/clientes');
+    const clientes = await res.json();
+
+    const tbody = document.querySelector('#tabelaClientesMaisCompraram tbody');
+    tbody.innerHTML = "";
+
+    clientes.forEach(c => {
+      const totalNum = Number(c.valor_total);
+      tbody.innerHTML += `
+        <tr>
+          <td>${c.cliente}</td>
+          <td>${c.total_pedidos}</td>
+          <td>R$ ${totalNum.toFixed(2)}</td>
+        </tr>
+      `;
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+/*INICIALIZAÇÃO*/
+carregarProdutosMaisVendidos();
+carregarClientesMaisCompraram();
+</script>
+
+</body>
+</html>

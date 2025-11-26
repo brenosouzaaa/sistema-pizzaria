@@ -1,0 +1,393 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+body {
+  background-color: #f4f5f7;
+  color: #1e1e1e;
+}
+
+header {
+  background: linear-gradient(90deg, #d32f2f, #b71c1c);
+  color: #fff;
+  padding: 1rem 2rem;
+}
+
+header h1 {
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+header p {
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+  color: #f0f0f0;
+}
+
+nav {
+  margin-top: 1rem;
+  display: flex;
+  gap: 0.5rem;
+}
+
+nav button {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+nav button:hover {
+  background-color: #f0f0f0;
+}
+
+main {
+  padding: 2rem;
+}
+
+h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: #222;
+}
+
+.btn-vermelho {
+  background-color: #d32f2f;
+  color: #fff;
+  padding: 0.6rem 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: 0.2s;
+}
+
+.btn-vermelho:hover {
+  background-color: #b71c1c;
+}
+
+.btn-buscar {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: 0.2s ease-in-out;
+}
+
+.btn-buscar:hover {
+  background-color: #f0f0f0;
+}
+
+input[type="text"], input[type="number"], input[type="email"] {
+  width: 100%;
+  padding: 0.5rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+table th, table td {
+  border-bottom: 1px solid #ddd;
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+}
+
+table th {
+  background-color: #eee;
+}
+
+.actions button {
+  margin-right: 0.3rem;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.actions button:hover {
+  background-color: #f0f0f0;
+}
+
+.section {
+  margin-bottom: 3rem;
+}
+
+/* Fundo escuro atrás do modal */
+.modal {
+    display: none; /* começa invisível */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* fundo escuro */
+    backdrop-filter: blur(4px); /* leve desfoque */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* Caixa do modal */
+.modal-content {
+    background: white;
+    width: 380px;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    animation: aparecer 0.25s ease-out;
+}
+
+/* Animação leve */
+@keyframes aparecer {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Inputs do modal */
+.modal-content input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+/* Botão fechar (X) */
+.fechar {
+    float: right;
+    font-size: 22px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.fechar:hover {
+    color: red;
+}
+
+/* Botões salvar/excluir */
+.btn-salvar {
+    width: 100%;
+    padding: 12px;
+    background: #0275d8;
+    color: white;
+    border: none;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-salvar:hover {
+    background: #025aa5;
+}
+
+.btn-excluir {
+    width: 100%;
+    padding: 12px;
+    background: #d9534f;
+    color: white;
+    border: none;
+    font-size: 16px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-excluir:hover {
+    background: #c9302c;
+}
+
+/*Botão para fechar o modal*/
+
+.btn-confirmar {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 12px; 
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    transition: 0.2s ease-in-out;
+    min-width: 110px; 
+    height: 40px; 
+    font-weight: 600;
+}
+
+.btn-confirmar:hover {
+  background-color: #f0f0f0;
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: flex-start;  
+  gap: 0.7rem;
+  margin-top: 1.2rem;
+}
+
+/* MODAL */
+.modalCarrinho {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalCarrinho-content {
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 900px;   /* aumenta a largura do modal */
+  width: 90%;         /* ocupa até 90% da tela */
+  max-height: 90%;    /* evita ultrapassar a altura da tela */
+  overflow-y: auto;   /* rolagem vertical se necessário */
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.modal-buttons {
+  display: flex;
+  justify-content: space-between; /* separa botões de ação e botão sair */
+  margin-top: 1.2rem;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.modal-buttons .acoes-esquerda {
+  display: flex;
+  gap: 0.7rem;
+}
+
+#passoEndereco input#inputEndereco {
+  margin-top: 8px; /* aumenta a distância entre o label e o input */
+  padding: 10px;   /* opcional, deixa o campo mais confortável para digitar */
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+/* RELATÓRIOS */
+
+/* Título especial */
+.top-clientes-title {
+  margin-top: 2rem;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Caixa da seção */
+.top-clientes-box {
+  background: #ffffff;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+/* Tabela exclusiva da seção */
+.top-clientes-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.8rem;
+}
+
+.top-clientes-table th,
+.top-clientes-table td {
+  border-bottom: 1px solid #e4e4e4;
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+}
+
+.top-clientes-table th {
+  background-color: #f1f1f1;
+  font-weight: bold;
+}
+
+.top-clientes-table tr:hover {
+  background: #fafafa;
+}
+
+/* Destaque sutil para o primeiro colocado */
+.rank-1 {
+  background-color: #fff7e0 !important;
+  font-weight: bold;
+}
+
+/* Destaque leve para top 3 */
+.rank-2, .rank-3 {
+  background-color: #fffdf4 !important;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 10px;
+  width: 80%;
+  max-width: 600px;
+}
+
+.modal-buttons {
+  margin-top: 10px;
+  text-align: right;
+}
+
+.btn-vermelho {
+  background-color: #d9534f;
+  color: #fff;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-vermelho:hover {
+  opacity: 0.9;
+}

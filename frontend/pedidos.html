@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedidos • Sistema de Pizzaria</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <h1>Sistema de Pizzaria</h1>
+  <p>Gestão completa de pedidos e clientes</p>
+  <nav>
+    <a href="pizza.html"><button>Clientes</button></a>
+    <a href="produtos.html"><button>Produtos</button></a>
+    <a href="carrinho.html"><button>Carrinho</button></a>
+    <a href="pedidos.html"><button>Pedidos</button></a>
+    <a href="relatorios.html"><button>Relatórios</button></a>
+  </nav>
+</header>
+
+<main>
+  <div class="section">
+    <h2>Histórico de Pedidos</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Cliente</th>
+          <th>Itens</th>
+          <th>Valor Total</th>
+          <th>Status</th>
+          <th>Data</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Pedidos aqui -->
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Modal Itens -->
+<div id="modalItens" class="modal">
+  <div class="modal-content">
+    <h3>Itens do Pedido <span id="modalPedidoId"></span></h3>
+    <ul id="listaItens"></ul>
+    <div class="modal-buttons">
+      <button class="btn-vermelho" onclick="fecharModalItens()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+async function fetchPedidos() {
+  try {
+    const res = await fetch('/api/pedidos');
+    const pedidos = await res.json();
+    renderizarPedidos(pedidos);
+  } catch (err) {
+    console.error("Erro ao buscar pedidos:", err);
+    alert("Não foi possível carregar os pedidos.");
+  }
+}
+
+function renderizarPedidos(pedidos) {
+  const tbody = document.querySelector("table tbody");
+  tbody.innerHTML = "";
+
+  pedidos.forEach(pedido => {
+    const totalNum = Number(pedido.total);
+
+    tbody.innerHTML += `
+      <tr>
+        <td>${pedido.id}</td>
+        <td>${pedido.cliente_nome ?? "Sem cliente"}</td>
+        <td><button class="btn-buscar" onclick="verItensModal('${pedido.id}')">Ver Itens</button></td>
+        <td>R$ ${totalNum.toFixed(2)}</td>
+        <td>${pedido.status ?? "Concluído"}</td>
+        <td>${new Date(pedido.data_iso).toLocaleString()}</td>
+      </tr>
+    `;
+  });
+}
+
+async function verItensModal(pedidoId) {
+  try {
+    const res = await fetch(`/api/pedidos/${pedidoId}/itens`);
+    const itens = await res.json();
+
+    const lista = document.getElementById("listaItens");
+    lista.innerHTML = "";
+
+      itens.forEach(i => {
+    const precoNum = Number(i.preco_unit);
+    const subtotal = precoNum * i.quantidade;
+    const div = document.createElement("div");
+    div.style.marginBottom = "8px";
+    div.textContent = `${i.nome} (x${i.quantidade}) - R$ ${precoNum.toFixed(2)} | Subtotal: R$ ${subtotal.toFixed(2)}`;
+    lista.appendChild(div);
+  });
+
+    document.getElementById("modalPedidoId").innerText = pedidoId;
+    document.getElementById("modalItens").style.display = "flex";
+
+  } catch (err) {
+    console.error(err);
+    alert("Não foi possível buscar os itens do pedido.");
+  }
+}
+
+function fecharModalItens() {
+  document.getElementById("modalItens").style.display = "none";
+}
+
+// Inicialização
+fetchPedidos();
+</script>
+
+</body>
+</html>
